@@ -1,0 +1,210 @@
+--1.
+--COMM 의 값이 NULL이 아닌 정보 조회
+SELECT *
+FROM EMP
+WHERE COMM IS NOT NULL;
+
+--2.
+--커미션을 받지 못하는 직원 조회
+SELECT *
+FROM EMP
+WHERE COMM IS NULL OR COMM='0';
+
+--3.
+--관리자가 없는 직원 정보조회
+SELECT *
+FROM EMP
+WHERE MGR IS NULL;
+
+--4.
+--급여를 많이 받는 직원 순으로 조회
+SELECT *
+FROM EMP
+ORDER BY SAL DESC;
+
+--5.
+--급여가 같을 경우 커미션을 내림차순 정렬 조회
+SELECT *
+FROM EMP
+ORDER BY SAL DESC, COMM DESC ;
+
+--6.
+--EMP 테이블에서 사원번호, 사원명, 직급, 입사일 조회
+--단 입사일을 오름차순 정렬 처리함
+SELECT EMPNO"사원번호", ENAME"사원명", JOB"직급", HIREDATE"입사일"
+FROM EMP
+ORDER BY HIREDATE ASC;
+
+--7.
+--EMP 테이블로부터 사원번호, 사원명 조회
+--사원번호 기준 내림차순 정렬
+SELECT EMPNO"사원번호", ENAME"사원명"
+FROM EMP
+ORDER BY EMPNO DESC;
+
+--8.
+--사번, 입사일, 사원명, 급여조회
+--부서번호가 빠른 순으로, 같은 부서번호일 때는 최근 입사일순으로 처리
+SELECT EMPNO, HIREDATE, ENAME, SAL
+FROM EMP
+ORDER BY  EMPNO ASC, HIREDATE DESC;
+
+--9.
+--시스템으로 부터 오늘 날짜에 대한 정보를 얻고자 할 때
+SELECT SYSDATE
+FROM DUAL;
+
+--10
+--EMP 테이블로 부터 사번, 사원명, 급여 조회
+--단, 급여는 100단위 까지의 값만 출력 처리함.
+--급여 기준 내림차순 정렬함
+SELECT EMPNO"사번" ,
+            ENAME"사원명",
+            TRUNC(SAL,-2)"급여"
+FROM EMP
+ORDER BY SAL DESC;
+
+--11.
+--11 EMP 테이블로 부터 사원번호가 홀수인 사원들을 조회
+SELECT *
+FROM EMP
+WHERE MOD(EMPNO,2) = 1;
+
+--12.
+--EMP테이블로 부터 사원명, 입사일 조회
+--단, 입사일은 년도와 월을 분리 추출해서 출력
+SELECT ENAME"사원명", SUBSTR(HIREDATE,1,2) "입사년도", SUBSTR(HIREDATE,4,2)"입사월"
+FROM EMP;
+
+--13.
+--EMP테이블로 부터 9월에 입사한 직원의 정보 조회
+SELECT *
+FROM EMP
+WHERE SUBSTR(HIREDATE,5,1) = 9;
+
+SELECT EMPNO
+       ,ENAME
+       ,HIREDATE
+FROM EMP
+WHERE TO_CHAR(HIREDATE, 'MM') = '09';
+
+--14.
+--EMP 테이블로 부터 '81'년도에 입사한 직원 조회
+SELECT *
+FROM EMP
+WHERE SUBSTR(HIREDATE,1,2) = '81';
+
+--15.
+--EMP 테이블로부터 이름이 'E'로 끝나는 직원 조회
+SELECT *
+FROM EMP
+WHERE ENAME LIKE '%E';
+
+
+--16.
+--입사일로 부터 40년 되는 날짜 조회
+
+SELECT ADD_MONTHS(HIREDATE,480)
+FROM EMP;
+
+--17
+--입사일로 부터 33년 이상 근무한 직원의 정보 조회
+SELECT ADD_MONTHS(HIREDATE,12*33)
+FROM EMP;
+
+BETWEEN A AND B
+
+SELECT *
+FROM EMP
+WHERE MONTHS_BETWEEN(SYSDATE,HIREDATE)>=33;
+
+SELECT *
+FROM EMP;
+
+--18.
+SELECT SUBSTR(SYSDATE,4,2)
+FROM DUAL;
+
+
+
+select empno,ename,hiredate, trunc((sysdate - hiredate)/365) 근무년수
+FROM EMP;
+
+
+
+SELECT TO_CHAR(TO_DATE('210412'),'YYYY')||'년' 
+            ||TO_CHAR(TO_DATE('210412'),'MM')||'월'
+            ||TO_CHAR(TO_DATE('210412'),'DD')||'일' "날짜"
+FROM DUAL;
+
+
+
+
+
+
+
+
+SELECT EMP_NAME, JOB_CODE,COUNT(*) "사원수"
+FROM EMPLOYEE
+WHERE BONUS IS NOT NULL 
+GROUP BY JOB_CODE
+ORDER BY JOB_CODE;
+
+
+SELECT *
+FROM EMPLOYEE
+WHERE BONUS IS NOT NULL;
+
+
+
+
+SELECT DEPT_CODE, SUM(SALARY) "합계",  FLOOR(AVG(SALARY))"평균",  COUNT(*)"인원수"
+FROM EMPLOYEE
+GROUP BY DEPT_CODE
+HAVING FLOOR(AVG(SALARY))>2800000
+ORDER BY DEPT_CODE ASC;
+
+SELECT *
+FROM EMPLOYEE;
+
+
+SELECT GRADE, AVG(SCORE)
+FROM SOOHO
+GROUP BY GRADE
+ORDER BY GRADE ASC;
+
+CREATE TABLE SOOHO(
+    SID NUMBER PRIMARY KEY,
+    SNAME VARCHAR2(20),
+    GRADE CHAR(3),
+    SCORE NUMBER
+);
+
+INSERT INTO SOOHO
+VALUES(1001,'홍길동','A',93);
+
+INSERT INTO SOOHO
+VALUES(1002,'고길동','D',65);
+
+INSERT INTO SOOHO
+VALUES(1003,'김철수','C',75);
+
+INSERT INTO SOOHO
+VALUES(1004,'박영희','A',97);
+
+SELECT SUBSTR(TO_CHAR(TO_DATE('190505'),'DD'),2,1)
+FROM DUAL;
+
+SELECT TO_CHAR(TO_DATE('190505'),'YYYY')||'년'||
+            TO_CHAR(TO_DATE('190505'),'MON')||
+            SUBSTR(TO_CHAR(TO_DATE('190505'),'DD'),2,1)||'일'
+FROM DUAL;
+
+
+
+SELECT EMP_ID
+FROM EMPLOYEE
+WHERE EMP_NAME = '이창진'
+GROUP BY
+HAVING
+ORDER BY

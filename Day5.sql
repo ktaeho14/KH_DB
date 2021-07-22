@@ -1,0 +1,400 @@
+--JOIN  :  두 개 이상의 테이블들을 하나로 합친다.
+--INNER JOIN /OUTER JOIN --
+--INNER JOIN은 둘 모두 일치하는 데이터만 합친다.
+--OUTER JOIN은 둘 중 하나, 혹은 둘 모두가 가진 값을 합칠때 사용한다.
+
+SELECT * FROM DEPARTMENT;
+
+SELECT DISTINCT DEPT_CODE, DEPT_TITLE
+FROM EMPLOYEE
+JOIN DEPARTMENT ON(DEPT_CODE = DEPT_ID)
+ORDER BY 1;
+
+--OUTER JOIN--
+--LEFT [OUTER] JOIN : 두 테이블 중 원본(좌측) 테이블의 정보를 
+--                             모두 포함하여 조회할 때 선언
+--RIGHT [OUTER] JOIN  :  두 테이블 중 JOIN에 명시한 테이블의 정보를 
+--                                  모두 포함하여 조회할 때 선언
+--FULL [OUTER] JOIN : 두 테이블이 가진 데이터 중 서로가 가지지 않은 값일지라도
+--                              모두 포함하여 조회하고자 할 때 선언
+
+--LEFT JOIN--
+--ANSI
+SELECT DEPT_CODE, EMP_NAME, DEPT_TITLE
+FROM EMPLOYEE
+LEFT JOIN DEPARTMENT ON(DEPT_CODE = DEPT_ID);
+
+--ORACLE--
+SELECT DEPT_CODE, EMP_NAME, DEPT_TITLE
+FROM EMPLOYEE ,DEPARTMENT
+WHERE DEPT_CODE = DEPT_ID(+);
+
+--RIGHT JOIN--
+SELECT DISTINCT DEPT_CODE FROM EMPLOYEE;
+
+--ANSI--
+SELECT DEPT_CODE, DEPT_ID, EMP_NAME
+FROM EMPLOYEE
+RIGHT JOIN DEPARTMENT ON(DEPT_CODE = DEPT_ID);
+
+--ORACLE--
+SELECT *
+FROM EMPLOYEE, DEPARTMENT
+WHERE DEPT_CODE(+) = DEPT_ID;
+
+--FULL JOIN--
+--ANSI--
+SELECT *
+FROM EMPLOYEE
+FULL JOIN DEPARTMENT ON(DEPT_CODE= DEPT_ID);
+
+--ORACLE--
+--ORACLE 구문에서는 FULL OUTER JOIN을 지원하지 않는다.
+SELECT DEPT_CODE, DEPT_ID, EMP_NAME
+FROM EMPLOYEE,DEPARTMENT
+WHERE DEPT_CODE(+) = DEPT_ID(+);
+
+
+--CROSS JOIN
+--기본적인 JOIN은 양측의 테이블 정보에서 하나씩은 일치하는 정보를
+--가지고 JOIN을 수행, 이를 EQ(Equal) JOIN 이라고 한다.
+--하지만, 만약 서로 같은 값을 가지지 않는 테이블의 정보를 조회하려고 할 경우에도
+--JOIN을 수행할 수 있는데, 이를 CROSS JOIN 이라고 한다.
+
+SELECT * FROM EMPLOYEE;
+SELECT * FROM NATIONAL;
+
+SELECT EMP_NAME, NATIONAL_CODE
+FROM EMPLOYEE
+CROSS JOIN NATIONAL;
+
+
+--NON-EQUAL (NON-EQ) JOIN
+--지정한 컬럼 값 자체가 아닌
+--특정 범위 내에 존재하는 조건으로 JOIN을 수행할 경우 사용하는 JOIN 방식
+
+--ON() 안에 들어가는 형식이 컬럼 뿐만 아니라 계산식, AND, OR, 함수식 등의 표현식도 넣을수 있다.
+SELECT *
+FROM EMPLOYEE
+JOIN SAL_GRADE ON(SALARY BETWEEN MIN_SAL AND MAX_SAL);
+
+SELECT *
+FROM EMPLOYEE
+JOIN SAL_GRADE USING(SAL_LEVEL);
+
+SELECT * FROM SAL_GRADE;
+
+--SELF JOIN--
+--자기 자신을 조인하는 방법
+
+--직원의 정보와 직원을 관리하는 매니저의 정보를 조회하는 쿼리
+SELECT *
+FROM EMPLOYEE;
+
+SELECT E.EMP_ID "사번", E.EMP_NAME "사원명", E.MANAGER_ID "관리자 사번", M.EMP_NAME "관리자명"
+FROM EMPLOYEE E
+JOIN EMPLOYEE M ON(E.MANAGER_ID = M.EMP_ID);
+
+--ORACLE--
+SELECT E.EMP_ID "사번", E.EMP_NAME "사원명", E.MANAGER_ID "관리자 사번", M.EMP_NAME "관리자명"
+FROM EMPLOYEE E, EMPLOYEE M
+WHERE E.MANAGER_ID = M.EMP_ID;
+
+--다중 JOIN--
+--여러 개의 테이블을 JOIN 하는것
+--일반 조인과 선언방식은 같으나, 앞서 조인한 결과를 기준으로
+--후에 조인할 테이블을 연결 짓는다.
+--따라서 조인 순서에 반드시 주의 해야 한다.
+
+--EMPLOYEE DEPARTMENT LOCATION
+--ANSI--
+SELECT *
+FROM EMPLOYEE
+JOIN DEPARTMENT ON(DEPT_CODE = DEPT_ID)
+JOIN LOCATION ON(LOCATION_ID = LOCAL_CODE);
+
+
+--ORACLE--
+SELECT *
+FROM EMPLOYEE, DEPARTMENT, LOCATION
+WHERE DEPT_CODE = DEPT_ID 
+        AND LOCATION_ID = LOCAL_CODE
+        AND DEPT_CODE = 'D2';
+
+--실습 1
+--직급이 대리이면서, 아시아 지역에서 근무하는 사원 조회
+--사번, 사원명, 직급명, 부서명, 근무지역명, 급여
+
+SELECT *
+FROM EMPLOYEE;
+
+SELECT *
+FROM JOB;
+
+SELECT *
+FROM DEPARTMENT;
+
+SELECT *
+FROM LOCATION;
+
+--ANSI--
+SELECT EMP_ID "사번", EMP_NAME "사원명", JOB_NAME "직급명", DEPT_TITLE "부서명",  LOCAL_NAME "근무지역명", SALARY "급여"
+FROM EMPLOYEE
+JOIN  JOB USING(JOB_CODE)
+JOIN  DEPARTMENT ON(DEPT_CODE = DEPT_ID)
+JOIN LOCATION ON(LOCATION_ID=LOCAL_CODE)
+WHERE JOB_CODE = 'J6'
+            AND LOCAL_NAME LIKE 'ASIA%';
+
+SELECT EMP_ID "사번", EMP_NAME "사원명", JOB_NAME "직급명", DEPT_TITLE "부서명",  LOCAL_NAME "근무지역명", SALARY "급여"
+FROM EMPLOYEE E
+JOIN  JOB J ON(E.JOB_CODE = J.JOB_CODE AND JOB_NAME = '대리')
+JOIN  DEPARTMENT ON(DEPT_CODE = DEPT_ID)
+JOIN LOCATION ON(LOCATION_ID=LOCAL_CODE AND LOCAL_NAME LIKE 'ASIA%');
+
+
+
+--ORACLE--
+SELECT EMP_ID "사번", EMP_NAME "사원명", JOB.JOB_NAME "직급명", DEPARTMENT.DEPT_TITLE "부서명",  LOCATION.LOCAL_NAME "근무지역명", SALARY "급여"
+FROM EMPLOYEE,JOB,DEPARTMENT,LOCATION
+WHERE EMPLOYEE.JOB_CODE = JOB.JOB_CODE 
+        AND DEPT_CODE = DEPT_ID 
+        AND LOCATION_ID = LOCAL_CODE 
+        AND EMPLOYEE.JOB_CODE = 'J6'
+        AND LOCAL_NAME LIKE 'ASIA%';
+        
+        
+        
+--실습2.
+--한국과 일본에 근무하는 직원들의 정보 조회
+-- 사원명, 부서명, 지역명, 국가명
+
+SELECT *
+FROM EMPLOYEE;
+
+SELECT *
+FROM JOB;
+
+SELECT *
+FROM DEPARTMENT;
+
+SELECT *
+FROM LOCATION;
+
+SELECT *
+FROM NATIONAL;
+
+SELECT EMP_NAME"사원명", DEPT_TITLE"부서명", LOCAL_NAME"지역명", NATIONAL_NAME"국가명"
+FROM EMPLOYEE
+JOIN DEPARTMENT ON(DEPT_CODE =DEPT_ID)
+JOIN LOCATION ON (LOCATION_ID = LOCAL_CODE)
+JOIN NATIONAL USING(NATIONAL_CODE)
+WHERE NATIONAL_NAME = '한국' OR NATIONAL_NAME = '일본';
+
+SELECT EMP_NAME"사원명", DEPT_TITLE"부서명", LOCAL_NAME"지역명", NATIONAL_NAME"국가명"
+FROM EMPLOYEE E
+JOIN DEPARTMENT D ON(E.DEPT_CODE =D.DEPT_ID)
+JOIN LOCATION "L" ON (D.LOCATION_ID = L.LOCAL_CODE)
+JOIN NATIONAL "N" ON(L.NATIONAL_CODE = N.NATIONAL_CODE)
+WHERE NATIONAL_NAME IN('한국','일본');
+
+--ORACLE
+SELECT EMP_NAME"사원명", DEPT_TITLE"부서명", LOCAL_NAME"지역명", NATIONAL_NAME"국가명"
+FROM EMPLOYEE E, DEPARTMENT D , LOCATION L , NATIONAL N
+WHERE E.DEPT_CODE = D.DEPT_ID
+    AND D.LOCATION_ID = L.LOCAL_CODE
+    AND L.NATIONAL_CODE = N.NATIONAL_CODE
+    AND NATIONAL_NAME IN('한국','일본');
+    
+ 
+ --단일 행 서브쿼리
+ --결과 값이 1개 나오는 쿼리
+ 
+ 
+ 
+--Sub Query--
+--주가되는 메인쿼리 안에서
+--조건이나 검색을 위한 또 하나의 쿼리를 추가하는 기법
+
+
+--Ex) 최소 급여를 받는 사원의 정보 조회
+SELECT MIN(SALARY)
+FROM EMPLOYEE;
+--1380000
+
+SELECT *
+FROM EMPLOYEE
+WHERE SALARY = (SELECT MIN(SALARY)FROM EMPLOYEE);
+
+
+--다중 행 서브쿼리
+--결과 값이 여러 줄 나오는 서브쿼리
+
+-- 각 직급별 최소 급여
+SELECT JOB_CODE, MIN(SALARY)
+FROM EMPLOYEE
+GROUP BY JOB_CODE;
+
+SELECT *
+FROM EMPLOYEE
+WHERE SALARY IN(SELECT MIN(SALARY)
+                            FROM EMPLOYEE 
+                            GROUP BY JOB_CODE);
+                            
+                            
+--다중 열 다중 행 서브쿼리
+--여러 컬럼과 여러 줄을 가진 서브쿼리 사용하여 조회
+
+SELECT *
+FROM EMPLOYEE
+WHERE (JOB_CODE, SALARY) IN (SELECT JOB_CODE, MIN(SALARY) FROM EMPLOYEE GROUP BY JOB_CODE);
+
+
+--Ex) 퇴사한 여직원과 같은 직급, 부서에서 근무하는 직원들의 정보 조회
+SELECT *
+FROM EMPLOYEE
+WHERE ENT_YN = 'Y';
+--DEPT_CODE 'D8'
+--JOB_CODE 'J6'
+
+SELECT *
+FROM EMPLOYEE
+WHERE DEPT_CODE = (SELECT DEPT_CODE 
+                                 FROM EMPLOYEE
+                                 WHERE ENT_YN='Y')
+    AND JOB_CODE = (SELECT JOB_CODE
+                               FROM EMPLOYEE
+                               WHERE ENT_YN='Y')
+    AND EMP_NAME !=(SELECT EMP_NAME 
+                                FROM EMPLOYEE 
+                                WHERE ENT_YN ='Y');
+
+
+-- > 다중행 다중열 서브쿼리
+SELECT *
+FROM EMPLOYEE
+WHERE (DEPT_CODE, JOB_CODE) = (SELECT DEPT_CODE, JOB_CODE 
+                                                  FROM EMPLOYEE 
+                                                  WHERE ENT_YN='Y')
+    AND EMP_NAME != (SELECT EMP_NAME 
+                                 FROM EMPLOYEE 
+                                 WHERE ENT_YN = 'Y');
+
+
+--서브쿼리의 사용위치
+--SELECT, FROM, WHERE GROUP BY, HAVING, ORDER BY, JOIN
+--DML : INSERT, UPDATE, DELETE
+--DDL : CREATE TABLE, CREATE VIEW
+
+--FROM 위치에 사용되는 서브쿼리는
+--테이블을 테이블 명으로 직접 조회하는 대신에
+--서브쿼리의 실행 결과 (RESULT SET)을 활용하여 데이터를
+--데이터 조회할수 있다.
+--FROM 구문에 작성하는 서브쿼리를 Inline View(인라인뷰)라고 부른다.
+
+SELECT *
+FROM ( 
+        SELECT EMP_ID, EMP_NAME, DEPT_TITLE, JOB_NAME
+        FROM EMPLOYEE
+        JOIN DEPARTMENT ON(DEPT_CODE=DEPT_ID)
+        JOIN JOB USING(JOB_CODE)
+            );
+
+
+--TOP-N 분석 조회
+--가장 조건에 부합하는 내용을
+--순위화 하여 특정 순번까지 조회하는 방식
+
+--ROWNUM :  데이터를 조회할 때 각 행의 번호를 매겨주는 함수
+
+SELECT ROWNUM, EMP_NAME, SALARY
+FROM EMPLOYEE;
+
+SELECT ROWNUM, EMP_NAME, SALARY
+FROM EMPLOYEE
+WHERE ROWNUM<6;
+
+
+--1.
+--급여 기준으로 가장 높은 급여 받는 사원
+--상위 5명 조회하여 사번, 사원명, 급여 정보를 출력
+SELECT ROWNUM, EMP_ID, EMP_NAME, SALARY
+FROM EMPLOYEE
+WHERE ROWNUM<6
+ORDER BY SALARY DESC;
+--FROM에서부터 실행이된다.
+--ROWNUM의 순서가 뒤죽박죽이다.
+
+--2.
+--ROWNUM 기준 6~10번쨰 직원의
+--사번, 사원명 조회하기
+SELECT ROWNUM,EMP_ID, EMP_NAME
+FROM EMPLOYEE
+WHERE ROWNUM BETWEEN 6 AND 10;
+--ROWNUM은 1부터 처리를 해야한다
+
+SELECT ROWNUM, A.*
+FROM (
+            SELECT EMP_ID, EMP_NAME, SALARY
+            FROM EMPLOYEE
+            ORDER BY SALARY DESC
+            ) A;
+--FROM 문이 실행되어 결과가 나옴과 동시에 ROWNUM이 매겨지게된다.
+
+--실습3.
+--급여 평균이 3위 안에 드는 부서의
+--부서코드, 부서명, 급여평균 조회
+
+SELECT ROWNUM,DEPT_CODE, DEPT_TITLE, 평균
+FROM (SELECT DEPT_CODE, DEPT_TITLE,  TRUNC(AVG(SALARY),-3) "평균"
+            FROM EMPLOYEE, DEPARTMENT
+            WHERE DEPT_CODE = DEPT_ID
+            GROUP BY DEPT_CODE, DEPT_TITLE
+            ORDER BY 3 DESC)
+WHERE ROWNUM<4;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT *
+FROM EMPLOYEE;
+
+SELECT *
+FROM DEPARTMENT;
+--1.내부에서 정렬할 인라인 뷰 쿼리 만들기
+
+SELECT DEPT_CODE , DEPT_TITLE, TRUNC(AVG(SALARY),-3)
+FROM EMPLOYEE "E", DEPARTMENT D
+WHERE DEPT_CODE = DEPT_ID
+GROUP BY DEPT_CODE, DEPT_TITLE
+ORDER BY 3 DESC;
+
+--2.ROWNUM과 인라인 뷰를 반영하여 상위 3개 조회하기
+
+SELECT ROWNUM,DEPT_CODE, DEPT_TITLE, 평균
+FROM (
+            SELECT DEPT_CODE ,DEPT_TITLE, TRUNC(AVG(SALARY),-3) "평균"
+            FROM EMPLOYEE "E", DEPARTMENT D
+            WHERE DEPT_CODE = DEPT_ID
+            GROUP BY DEPT_CODE, DEPT_TITLE
+            ORDER BY 3 DESC)
+WHERE ROWNUM<4;
+
+
+
+
+
+

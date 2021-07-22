@@ -1,0 +1,93 @@
+--준비
+SELECT *
+FROM EMPLOYEE;
+
+SELECT *
+FROM DEPARTMENT;
+
+SELECT *
+FROM JOB;
+
+--1.
+
+SELECT EMP_NAME, DEPT_CODE
+FROM EMPLOYEE
+WHERE EMP_ID>215 AND EMP_ID<220 AND SUBSTR(EMP_NO,8,1)=1;
+
+
+--2.
+--ORACLE
+SELECT EMP_NAME "사원명",
+            DEPT_TITLE "부서명",
+            (SALARY+(SALARY*NVL(BONUS,0)))*12 "연봉"
+FROM EMPLOYEE,DEPARTMENT
+WHERE DEPT_CODE = DEPT_ID;
+
+
+--ANSI
+SELECT EMP_NAME "사원명",
+            DEPT_TITLE "부서명",
+            (SALARY+(SALARY*NVL(BONUS,0)))*12 "연봉"
+FROM EMPLOYEE
+JOIN DEPARTMENT ON(DEPT_CODE = DEPT_ID);
+
+
+
+--3.
+
+--ORACLE
+SELECT EMP_NAME "사원명",
+            PHONE "전화번호"
+FROM EMPLOYEE E, JOB J
+WHERE E.JOB_CODE = J.JOB_CODE AND PHONE LIKE '011%' AND E.JOB_CODE = 'J6'; 
+
+--ANSI
+SELECT EMP_NAME "사원명",
+            PHONE "전화번호"
+FROM EMPLOYEE
+JOIN JOB USING(JOB_CODE)
+WHERE PHONE LIKE '011%' AND JOB_CODE = 'J6';
+
+--4.
+
+SELECT *
+FROM (SELECT EMP_ID "사원번호",
+                      EMP_NAME "사원명",
+                    HIRE_DATE "입사일",
+                    SALARY "급여",
+                    RANK() OVER(ORDER BY SALARY DESC) "순위"
+        FROM EMPLOYEE
+        WHERE SUBSTR(EMP_NO,8,1) ='1')
+WHERE  순위<4;
+
+
+--5.
+--ORACLE
+SELECT DEPT_CODE "부서코드",
+            DEPT_TITLE "부서명",
+            TRUNC(AVG(SALARY),-2) "평균급여",
+            MAX(SALARY)"최대급여",
+            MIN(SALARY) "최소급여"
+FROM EMPLOYEE, DEPARTMENT
+WHERE DEPT_CODE = DEPT_ID
+GROUP BY DEPT_CODE,DEPT_TITLE;
+
+--ANSI
+
+SELECT DEPT_CODE "부서코드",
+            DEPT_TITLE "부서명",
+            TRUNC(AVG(SALARY),-2)"평균급여",
+            MAX(SALARY)"최대급여",
+            MIN(SALARY) "최소급여"
+FROM EMPLOYEE
+JOIN DEPARTMENT ON(DEPT_CODE = DEPT_ID)
+GROUP BY DEPT_CODE, DEPT_TITLE;
+
+
+--6.
+SELECT EMP_NAME "사원명",
+            EXTRACT(YEAR FROM HIRE_DATE)||'년' "입사년도",
+            EXTRACT(MONTH FROM HIRE_DATE)||'월' "입사월",
+            EXTRACT(DAY FROM HIRE_DATE)||'일' "입사일"
+FROM EMPLOYEE
+WHERE BONUS IS NULL;
